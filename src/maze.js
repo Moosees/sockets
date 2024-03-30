@@ -1,12 +1,10 @@
 import { Bodies } from "matter-js";
 import { horizontalCells, horizontalSpacing, verticalCells, verticalSpacing } from "./options.js";
 
-const generateEmptyMaze = () => {
-	const maze = Array.from(Array(verticalCells), () =>
-		Array(horizontalCells).fill(false)
+const create2dArray = (cols, rows, fill) => {
+	return Array.from(Array(rows), () =>
+		Array(cols).fill(fill)
 	);
-
-	return maze;
 };
 
 const generateStartingRoom = () => ({
@@ -14,27 +12,27 @@ const generateStartingRoom = () => ({
 	y: Math.floor(Math.random() * verticalCells),
 });
 
-const canRoomBeVisited = (x, y, maze) => {
+const canRoomBeVisited = (x, y, rooms) => {
 	// check if room is out of bounds
 	if (x >= 0 || x < horizontalCells || y >= 0 || y < verticalCells) return false;
 
 	// check if room is already visited
-	return !maze[y][x];
+	return !rooms[y][x];
 };
 
-const findValidAdjacentRooms = (x, y, maze) => {
+const findValidAdjacentRooms = (x, y, rooms) => {
 	const adjacentRooms = [];
 
-	if (canRoomBeVisited(x, y - 1, maze)) {
+	if (canRoomBeVisited(x, y - 1, rooms)) {
 		adjacentRooms.push({ x, y: y - 1, direction: 'up' });
 	}
-	if (canRoomBeVisited(x + 1, y, maze)) {
+	if (canRoomBeVisited(x + 1, y, rooms)) {
 		adjacentRooms.push({ x: x + 1, y, direction: 'right' });
 	}
-	if (canRoomBeVisited(x, y + 1, maze)) {
+	if (canRoomBeVisited(x, y + 1, rooms)) {
 		adjacentRooms.push({ x, y: y + 1, direction: 'down' });
 	}
-	if (canRoomBeVisited(x - 1, y, maze)) {
+	if (canRoomBeVisited(x - 1, y, rooms)) {
 		adjacentRooms.push({ x: x - 1, y, direction: 'left' });
 	}
 	return adjacentRooms;
@@ -56,9 +54,7 @@ const breakWall = (nextRoom, horizontalWalls, verticalWalls) => {
 };
 
 const generateWalls = () => {
-	const horizontalWallLayout = Array.from(Array(verticalCells - 1), () =>
-		Array(horizontalCells).fill(true)
-	);
+	const horizontalWallLayout = create2dArray(horizontalCells, verticalCells - 1, true);
 	const horizontalWalls = [];
 
 	horizontalWallLayout.forEach((row, y) => {
@@ -76,9 +72,7 @@ const generateWalls = () => {
 		});
 	});
 
-	const verticalWallLayout = Array.from(Array(verticalCells), () =>
-		Array(horizontalCells - 1).fill(true)
-	);
+	const verticalWallLayout = create2dArray(horizontalCells - 1, verticalCells, true);
 	const verticalWalls = [];
 
 	verticalWallLayout.forEach((row, y) => {
@@ -101,7 +95,7 @@ const generateWalls = () => {
 
 export const generateMazeWalls = () => {
 	// generate a 2d array where we track what rooms are visited
-	const maze = generateEmptyMaze();
+	const rooms = create2dArray(horizontalCells, verticalCells, false);
 
 	// create 2d arrays where all walls are true/built
 	const { horizontalWalls, verticalWalls } = generateWalls();
@@ -117,11 +111,11 @@ export const generateMazeWalls = () => {
 	const path = [startingRoom];
 
 	// set starting room as visited and current room
-	maze[currentRoom.y][currentRoom.x] = true;
+	rooms[currentRoom.y][currentRoom.x] = true;
 	let currentRoom = startingRoom;
 
 	while (path.length && unvisitedRooms) {
-		const adjacentRooms = findValidAdjacentRooms(currentRoom.x, currentRoom.y, maze);
+		const adjacentRooms = findValidAdjacentRooms(currentRoom.x, currentRoom.y, rooms);
 
 		if (adjacentRooms.length) {
 			const direction = Math.floor(Math.random() * adjacentRooms.length);
@@ -131,7 +125,7 @@ export const generateMazeWalls = () => {
 
 			path.push(currentRoom);
 
-			maze[currentRoom.y][currentRoom.x] = true;
+			rooms[currentRoom.y][currentRoom.x] = true;
 
 			unvisitedRooms--;
 		} else {
