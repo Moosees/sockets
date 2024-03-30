@@ -10,15 +10,18 @@ const io = new Server(server);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const port = 3000;
+let connectedClients = [];
 
 app.use('/', express.static(join(__dirname, 'client')));
 app.use('/node', express.static(join(__dirname, 'node_modules')));
 
 io.on('connection', (socket) => {
-	console.log('connection event', socket);
+	connectedClients.push(socket.id);
+	console.log(`${socket.id} connected`);
 
 	socket.on('disconnect', () => {
-		console.log('disconnect event');
+		connectedClients = connectedClients.filter(id => id !== socket.id);
+		console.log(`${socket.id} disconnected`);
 	});
 });
 
