@@ -1,5 +1,5 @@
 import { Bodies } from "matter-js";
-import { horizontalCells, horizontalSpacing, verticalCells, verticalSpacing } from "./options.js";
+import { horizontalCells, horizontalSpacing, verticalCells, verticalSpacing, wallOptions } from "./options.js";
 
 const create2dArray = (cols, rows, fill) => {
 	return Array.from(Array(rows), () =>
