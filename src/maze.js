@@ -14,7 +14,7 @@ const generateStartingRoom = () => ({
 
 const canRoomBeVisited = (x, y, rooms) => {
 	// check if room is out of bounds
-	if (x >= 0 || x < horizontalCells || y >= 0 || y < verticalCells) return false;
+	if (x <= 0 || x > horizontalCells || y <= 0 || y > verticalCells) return false;
 
 	// check if room is already visited
 	return !rooms[y][x];
